@@ -9,19 +9,19 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
-from pathlib import Path
 import os
-from dotenv import load_dotenv
-load_dotenv()
+from pathlib import Path
 
-TEQUILA_API_KEY = os.getenv("TEQUILA_API_KEY", "")
-TEQUILA_BASE_URL = os.getenv("TEQUILA_BASE_URL", "https://tequila-api.kiwi.com")
+from dotenv import load_dotenv
+
+
+
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv(BASE_DIR / ".env")  
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -33,8 +33,11 @@ SECRET_KEY = 'django-insecure-z(hn83mgikx%r%s)bm&&sl6+c7#-0i12^p9hqcwi1hh_gf3dzw
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
+CORS_ALLOW_ALL_ORIGINS = True 
 CSRF_TRUSTED_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
+TEQUILA_API_KEY = os.getenv("TEQUILA_API_KEY", "")
+TEQUILA_BASE_URL = os.getenv("TEQUILA_BASE_URL", "https://tequila-api.kiwi.com")
 # Application definition
 
 INSTALLED_APPS = [
@@ -44,13 +47,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-     "rest_framework",
-    "flights",
+      "corsheaders",        
+    "rest_framework",    
+    "flights",           
 ]
 
 MIDDLEWARE = [
+   
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# backend-api/flight-optimizer
+source .venv/Scripts/activate
+python -m flights.cli "$@"
