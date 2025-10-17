@@ -13,12 +13,11 @@ def best_value(request):
     try:
         result = run_cli(from_city, to_cities)
     except ValueError as e:
-        # e.g., "Location not found: puerto rico"
         return Response({"error": str(e)}, status=400)
     except Exception:
         return Response({"error": "Internal server error."}, status=500)
 
-    if not result:
+    if not result["comparisons"]:
         return Response({"message": "No results in the next 24 hours."}, status=200)
 
     return Response(result, status=200)

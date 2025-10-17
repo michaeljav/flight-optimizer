@@ -11,13 +11,19 @@ from .utils import resolve_city_main_airport, cheapest_oneway, haversine_km
 def run(from_city: str, to_cities: list[str]):
     dep = resolve_city_main_airport(from_city)
     best = None
+    all_candidates = []
 
-    now = datetime.now(timezone.utc)
+    from datetime import datetime, timedelta
+    now = datetime.utcnow()
     date_from = now.strftime("%d/%m/%Y")
     date_to = (now + timedelta(days=1)).strftime("%d/%m/%Y")
 
     for city in to_cities:
-        arr = resolve_city_main_airport(city)
+        try:
+            arr = resolve_city_main_airport(city)
+        except ValueError:
+            continue  # skip unknown cities
+
         flight = cheapest_oneway(dep["airport_code"], arr["airport_code"], date_from, date_to, "USD")
         if not flight:
             continue
@@ -31,14 +37,20 @@ def run(from_city: str, to_cities: list[str]):
         cand = {
             "destination": arr["city_name"],
             "airport": arr["airport_code"],
-            "price": price,
+            "price": round(price, 2),
             "distance_km": round(dist_km, 2),
             "price_per_km": round(price_per_km, 4),
         }
+        all_candidates.append(cand)
+
         if best is None or cand["price_per_km"] < best["price_per_km"]:
             best = cand
 
-    return best
+    return {
+        "best": best,
+        "comparisons": all_candidates
+    }
+
 
 if __name__ == "__main__":
     import argparse
