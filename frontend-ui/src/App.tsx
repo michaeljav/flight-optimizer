@@ -1,35 +1,75 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import axios from 'axios';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [fromCity, setFromCity] = useState('');
+  const [toCities, setToCities] = useState('');
+  const [result, setResult] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setResult(null);
+    setLoading(true);
+    try {
+      const to = toCities
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const { data } = await axios.post('http://127.0.0.1:8000/api/best', {
+        from: fromCity,
+        to
+      });
+      setResult(data);
+    } catch (err: any) {
+      setError(err?.response?.data?.error || 'Error');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+    <div
+      style={{
+        maxWidth: 600,
+        margin: '40px auto',
+        fontFamily: 'system-ui, sans-serif'
+      }}
+    >
+      <h1>Flight Optimizer ($/km)</h1>
+      <form onSubmit={onSubmit}>
+        <label>From city</label>
+        <input
+          value={fromCity}
+          onChange={(e) => setFromCity(e.target.value)}
+          placeholder="London"
+          style={{ width: '100%', marginBottom: 8 }}
+        />
+        <label>To cities (comma separated)</label>
+        <input
+          value={toCities}
+          onChange={(e) => setToCities(e.target.value)}
+          placeholder="Paris, Rome, Madrid"
+          style={{ width: '100%', marginBottom: 8 }}
+        />
+        <button type="submit" disabled={loading}>
+          {loading ? 'Calculating...' : 'Find best'}
         </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+      </form>
 
-export default App
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {result && !result.message && (
+        <div style={{ marginTop: 16, padding: 12, border: '1px solid #ddd' }}>
+          <h3>Best destination: {result.destination}</h3>
+          <p>Airport: {result.airport}</p>
+          <p>Distance: {result.distance_km} km</p>
+          <p>Price per km: ${result.price_per_km}/km</p>
+          <p>Price (approx): ${result.price}</p>
+        </div>
+      )}
+      {result?.message && <p>{result.message}</p>}
+    </div>
+  );
+}
