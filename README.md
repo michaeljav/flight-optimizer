@@ -1,3 +1,5 @@
+# IMAGE
+![App Screenshot](image.png)
 # Flight Optimizer ($/km)
 
 Find the **best destination (lowest USD per kilometer)** among several candidate cities using the Kiwi (Tequila) public APIs.  
