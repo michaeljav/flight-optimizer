@@ -18,10 +18,8 @@ export default function App() {
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean);
-      const { data } = await axios.post('http://127.0.0.1:8000/api/best', {
-        from: fromCity,
-        to
-      });
+      // 👉 sin host: el navegador llama a Nginx (mismo origin) y Nginx proxya /api al backend
+      const { data } = await axios.post('/api/best', { from: fromCity, to });
       setResult(data);
     } catch (err: any) {
       setError(err?.response?.data?.error || 'Error');

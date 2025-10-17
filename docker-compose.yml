@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: ./backend-api
+      dockerfile: Dockerfile
+    env_file:
+      - ./backend-api/.env # usa tu API key Kiwi
+    ports:
+      - '8000:8000' # opcional (debug directo)
+    networks:
+      - appnet
+
+  web:
+    build:
+      context: ./frontend-ui
+      dockerfile: Dockerfile
+    depends_on:
+      - backend
+    ports:
+      - '8080:80' # frontend+proxy en host:8080
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    driver: bridge
